@@ -1,0 +1,33 @@
+{
+  "name": "Go and HTMX Development",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.Go", // Go extension which includes the Go language server (gopls)
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "ritwickdey.LiveServer"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "bash"
+          }
+        },
+        "[go]": {
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+          }
+        },
+        "eslint.alwaysShowStatus": true,
+        "prettier.enable": true
+      }
+    }
+  },
+  "postCreateCommand": "go mod tidy && go get -u github.com/cosmtrek/air && go install golang.org/x/tools/gopls@latest",
+  "features": {
+    "github-cli": "latest"
+  }
+}
