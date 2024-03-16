@@ -22,7 +22,23 @@
           }
         },
         "eslint.alwaysShowStatus": true,
-        "prettier.enable": true
+        "prettier.enable": true,
+        "emmet.triggerExpansionOnTab": true,
+        "emmet.showExpandedAbbreviation": "never",
+        "emmet.useInlineCompletions": false,
+        "emmet.showSuggestionsAsSnippets": true,
+        "emmet.syntaxProfiles": {
+          "html": {
+            "inline_break": 1
+          },
+          "jsx:": {
+            "inline_break": 1
+          }
+        },
+        "emmet.includeLanguages": {
+          "javascript": "javascriptreact",
+          "html": "html"
+        }
       }
     }
   },
