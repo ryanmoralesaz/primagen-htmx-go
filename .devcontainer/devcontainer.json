@@ -26,7 +26,7 @@
       }
     }
   },
-  "postCreateCommand": "go mod tidy && go get -u github.com/cosmtrek/air && go install golang.org/x/tools/gopls@latest",
+  "postCreateCommand": "go mod tidy && go install github.com/cosmtrek/air@latest && go install golang.org/x/tools/gopls@latest",
   "features": {
     "github-cli": "latest"
   }
