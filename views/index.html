@@ -70,6 +70,29 @@
         {{ template "display" .Data }}
     </div>
     <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.addEventListener('htmx:configRequest', (event) => {
+                console.log('HTMX Request Config:', event.detail);
+            });
+
+            document.body.addEventListener('htmx:beforeRequest', (event) => {
+                console.log('HTMX Request:', event.detail.xhr);
+            });
+
+            document.body.addEventListener('htmx:afterRequest', (event) => {
+                console.log('HTMX Response:', event.detail.xhr);
+            });
+
+            document.body.addEventListener('htmx:beforeSwap', (event) => {
+                console.log('HTMX beforeSwap:', event.detail);
+            });
+
+            document.body.addEventListener('htmx:afterSwap', (event) => {
+                console.log('HTMX afterSwap:', event.detail);
+            });
+        });
+    </script>
+    <script>
         document.addEventListener("DOMContentLoaded", (event) => {
             document.body.addEventListener('htmx:beforeSwap', function (evt) {
                 if (evt.detail.xhr.status === 422) {
@@ -90,7 +113,7 @@
 {{ end }}
 
 {{ block "form" . }}
-<form hx-post="/contacts" hx-target="#contact-display" hx-swap="outerHTML">
+<form hx-post="/contacts" hx-swap="outerHTML">
     <div class="form-group">
         <label for="name">Name:</label>
         <input {{ if .Values.name }} value="{{ .Values.name }}" {{ end }} class="form-control" type="text" name="name"
@@ -116,12 +139,9 @@
     <img src="https://images.hdqwalls.com/wallpapers/mountains-5k-retina-8u.jpg" alt="" onload="imageLoaded(this)">
     <div class="blur-photo"></div>
 </div> -->
-<div id="contact-display" style="display: flex; flex-direction: column;">
+<div id="contacts" style="display: flex; flex-direction: column;">
     {{ range .Contacts }}
-    <div>
-        Name: <span>{{ .Name }}</span>
-        Email: <span>{{ .Email }}</span>
-    </div>
+    {{ template "contact" . }}
     {{ end }}
 
     <!-- <div class="image-container">
@@ -129,5 +149,13 @@
             onload="imageLoaded(this)">
         <div class="blur-photo"></div>
     </div> -->
+</div>
+{{ end }}
+
+{{ block "contact" . }}
+
+<div>
+    Name: <span>{{ .Name }}</span>
+    Email: <span>{{ .Email }}</span>
 </div>
 {{ end }}

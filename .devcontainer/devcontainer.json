@@ -42,7 +42,7 @@
       }
     }
   },
-  "postCreateCommand": "go mod tidy && go install github.com/cosmtrek/air@latest && go install golang.org/x/tools/gopls@latest",
+  "postCreateCommand": "go mod tidy && go install github.com/cosmtrek/air@latest && go install golang.org/x/tools/gopls@latest && curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash - && sudo apt-get install -y nodejs && npm install -g browser-sync",
   "features": {
     "github-cli": "latest"
   }

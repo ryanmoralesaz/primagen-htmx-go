@@ -2,6 +2,7 @@ package main
 
 import (
 	"io"
+	"net/http"
 	"text/template"
 
 	"github.com/labstack/echo/v4"
@@ -27,22 +28,22 @@ type Contact struct {
 	Email string
 }
 
-func newContact(name, email string) Contact {
+func newContact(name string, email string) Contact {
 	return Contact{
 		Name:  name,
 		Email: email,
 	}
 }
 
-type Contacts = []Contact
+type Contacts []Contact
 
 type Data struct {
 	Contacts Contacts
 }
 
 func (d *Data) hasEmail(email string) bool {
-	for _, c := range d.Contacts {
-		if c.Email == email {
+	for _, contact := range d.Contacts {
+		if contact.Email == email {
 			return true
 		}
 	}
@@ -53,6 +54,7 @@ func newData() Data {
 		Contacts: []Contact{
 			newContact("aoeu", "jd@gmail.com"),
 			newContact("Jane Doe", "cd@gmail.com"),
+			newContact("Ivan Doe", "id@gmail.com"),
 		},
 	}
 }
@@ -81,10 +83,6 @@ type Page struct {
 	Form FormData
 }
 
-type Count struct {
-	Count int
-}
-
 func main() {
 	e := echo.New()
 	e.Use(middleware.Logger())
@@ -103,16 +101,20 @@ func main() {
 		name := c.FormValue("name")
 		email := c.FormValue("email")
 		if page.Data.hasEmail(email) {
-			formData := newFormData()
-			formData.Values["name"] = name
-			formData.Values["email"] = email
-			formData.Errors["email"] = "Email already exists"
-			return c.Render(422, "form", formData)
+			page.Form.Errors["email"] = "Email already exists"
+			return c.Render(422, "index", page)
 		}
-		contact := newContact(name, email)
-		page.Data.Contacts = append(page.Data.Contacts, contact)
-		return c.Render(200, "display", page)
-	})
+		// if page.Data.hasEmail(email) {
+		// 	formData := newFormData()
+		// 	formData.Values["name"] = name
 
+		// 	formData.Errors["name"] = "Name already exists"
+		// 	formData.Values["email"] = email
+		// 	formData.Errors["email"] = "Email already exists"
+		// 	return c.Render(422, "form", formData)
+		// }
+		page.Data.Contacts = append(page.Data.Contacts, newContact(name, email))
+		return c.Render(http.StatusOK, "display", page)
+	})
 	e.Logger.Fatal(e.Start(":4200"))
 }
