@@ -8,41 +8,126 @@
     <title></title>
     <script src="https://unpkg.com/htmx.org@1.5.0/dist/htmx.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .image-container {
+            position: relative;
+            width: 100px;
+            /* Adjust based on your needs */
+            height: 100px;
+            /* Adjust based on your needs */
+            overflow: hidden;
+        }
+
+        .blur-photo {
+            filter: blur(5px);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-image: url('https://cdn.abcteach.com/abcteach-content-free/docs/free_preview/m/mountains06blowres_p.png');
+        }
+
+        .image-container img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #display>div:nth-of-type(1) {
+            margin-bottom: 100vh;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function imageLoaded(imgEl) {
+                imgEl.style.display = 'block';
+                imgEl.nextElementSibling.style.display = 'none';
+            }
+            // Find all images and attach onload event
+            document.querySelectorAll('.image-container img').forEach(function (img) {
+                img.addEventListener('load', function () {
+                    imageLoaded(img);
+                });
+                // If the image is already loaded (from cache), manually trigger the onload function
+                if (img.complete) {
+                    imageLoaded(img);
+                }
+            });
+        });
+    </script>
 </head>
 
 <body>
     <div class="container my-3">
-        {{ template "form" . }}
+        {{ template "form" .Form }}
         <hr />
-        {{ template "display" . }}
+        {{ template "display" .Data }}
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", (event) => {
+            document.body.addEventListener('htmx:beforeSwap', function (evt) {
+                if (evt.detail.xhr.status === 422) {
+                    // allow 422 responses to swap as we are using this as a signal that
+                    // a form was submitted with bad data and want to rerender with the
+                    // errors
+                    //
+                    // set isError to false to avoid error logging in console
+                    evt.detail.shouldSwap = true;
+                    evt.detail.isError = false;
+                }
+            });
+        })
+    </script>
 </body>
 
 </html>
 {{ end }}
 
 {{ block "form" . }}
-<form hx-post="/contacts">
+<form hx-post="/contacts" hx-target="#contact-display" hx-swap="outerHTML">
     <div class="form-group">
-        <label for="">name:</label>
-        <input class="form-control" type="text" name="name">
+        <label for="name">Name:</label>
+        <input {{ if .Values.name }} value="{{ .Values.name }}" {{ end }} class="form-control" type="text" name="name"
+            id="name">
     </div>
 
     <div class="form-group">
-        <label for="">email:</label>
-        <input type="text" name="email" class="form-control">
+        <label for="email">Email:</label>
+        <input {{ if .Values.email }} value="{{ .Values.email }}" {{ end }} type="text" name="email" id="email"
+            class="form-control">
     </div>
+    {{ if .Errors.email }}
+    <div class="alert alert-danger">{{ .Errors.email }}</div>
+    {{ end }}
     <input type="submit" value="Submit" class="btn btn-primary rounded-pill">
 </form>
+
 {{ end }}
 
 {{ block "display" . }}
-<div style="display: flex; flex-direction: column;">
+
+<!-- <div class="image-container">
+    <img src="https://images.hdqwalls.com/wallpapers/mountains-5k-retina-8u.jpg" alt="" onload="imageLoaded(this)">
+    <div class="blur-photo"></div>
+</div> -->
+<div id="contact-display" style="display: flex; flex-direction: column;">
     {{ range .Contacts }}
     <div>
         Name: <span>{{ .Name }}</span>
         Email: <span>{{ .Email }}</span>
     </div>
     {{ end }}
+
+    <!-- <div class="image-container">
+        <img loading="lazy" src="https://images.hdqwalls.com/wallpapers/mountains-5k-retina-8u.jpg" alt=""
+            onload="imageLoaded(this)">
+        <div class="blur-photo"></div>
+    </div> -->
 </div>
 {{ end }}
