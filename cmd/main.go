@@ -1,9 +1,8 @@
 package main
 
 import (
+	"html/template"
 	"io"
-	"net/http"
-	"text/template"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -28,14 +27,14 @@ type Contact struct {
 	Email string
 }
 
-func newContact(name string, email string) Contact {
+func newContact(name, email string) Contact {
 	return Contact{
 		Name:  name,
 		Email: email,
 	}
 }
 
-type Contacts []Contact
+type Contacts = []Contact
 
 type Data struct {
 	Contacts Contacts
@@ -49,12 +48,12 @@ func (d *Data) hasEmail(email string) bool {
 	}
 	return false
 }
+
 func newData() Data {
 	return Data{
 		Contacts: []Contact{
-			newContact("aoeu", "jd@gmail.com"),
-			newContact("Jane Doe", "cd@gmail.com"),
-			newContact("Ivan Doe", "id@gmail.com"),
+			newContact("John", "aoeu"),
+			newContact("Clara", "cd@gmail.com"),
 		},
 	}
 }
@@ -71,6 +70,11 @@ func newFormData() FormData {
 	}
 }
 
+type Page struct {
+	Data Data
+	Form FormData
+}
+
 func newPage() Page {
 	return Page{
 		Data: newData(),
@@ -78,19 +82,12 @@ func newPage() Page {
 	}
 }
 
-type Page struct {
-	Data Data
-	Form FormData
-}
-
 func main() {
+
 	e := echo.New()
 	e.Use(middleware.Logger())
 
 	page := newPage()
-
-	// data := newData()
-
 	e.Renderer = newTemplate()
 
 	e.GET("/", func(c echo.Context) error {
@@ -100,21 +97,24 @@ func main() {
 	e.POST("/contacts", func(c echo.Context) error {
 		name := c.FormValue("name")
 		email := c.FormValue("email")
-		if page.Data.hasEmail(email) {
-			page.Form.Errors["email"] = "Email already exists"
-			return c.Render(422, "index", page)
-		}
-		// if page.Data.hasEmail(email) {
-		// 	formData := newFormData()
-		// 	formData.Values["name"] = name
 
-		// 	formData.Errors["name"] = "Name already exists"
-		// 	formData.Values["email"] = email
-		// 	formData.Errors["email"] = "Email already exists"
-		// 	return c.Render(422, "form", formData)
-		// }
-		page.Data.Contacts = append(page.Data.Contacts, newContact(name, email))
-		return c.Render(http.StatusOK, "display", page)
+		if page.Data.hasEmail(email) {
+			formData := newFormData()
+			formData.Values["name"] = name
+			formData.Values["email"] = email
+			formData.Errors["email"] = "Email already exists"
+
+			return c.Render(422, "form", formData)
+		}
+
+		contact := newContact(name, email)
+		page.Data.Contacts = append(page.Data.Contacts, contact)
+
+		// TODO: ??????
+		c.Render(200, "form", newFormData())
+		return c.Render(200, "oob-contact", contact)
 	})
+
 	e.Logger.Fatal(e.Start(":4200"))
+
 }

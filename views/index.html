@@ -3,10 +3,10 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title></title>
-    <script src="https://unpkg.com/htmx.org@1.5.0/dist/htmx.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://unpkg.com/htmx.org/dist/htmx.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         .image-container {
@@ -43,24 +43,6 @@
             margin-bottom: 100vh;
         }
     </style>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            function imageLoaded(imgEl) {
-                imgEl.style.display = 'block';
-                imgEl.nextElementSibling.style.display = 'none';
-            }
-            // Find all images and attach onload event
-            document.querySelectorAll('.image-container img').forEach(function (img) {
-                img.addEventListener('load', function () {
-                    imageLoaded(img);
-                });
-                // If the image is already loaded (from cache), manually trigger the onload function
-                if (img.complete) {
-                    imageLoaded(img);
-                }
-            });
-        });
-    </script>
 </head>
 
 <body>
@@ -69,93 +51,68 @@
         <hr />
         {{ template "display" .Data }}
     </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            document.body.addEventListener('htmx:configRequest', (event) => {
-                console.log('HTMX Request Config:', event.detail);
-            });
-
-            document.body.addEventListener('htmx:beforeRequest', (event) => {
-                console.log('HTMX Request:', event.detail.xhr);
-            });
-
-            document.body.addEventListener('htmx:afterRequest', (event) => {
-                console.log('HTMX Response:', event.detail.xhr);
-            });
-
-            document.body.addEventListener('htmx:beforeSwap', (event) => {
-                console.log('HTMX beforeSwap:', event.detail);
-            });
-
-            document.body.addEventListener('htmx:afterSwap', (event) => {
-                console.log('HTMX afterSwap:', event.detail);
-            });
-        });
-    </script>
-    <script>
-        document.addEventListener("DOMContentLoaded", (event) => {
-            document.body.addEventListener('htmx:beforeSwap', function (evt) {
-                if (evt.detail.xhr.status === 422) {
-                    // allow 422 responses to swap as we are using this as a signal that
-                    // a form was submitted with bad data and want to rerender with the
-                    // errors
-                    //
-                    // set isError to false to avoid error logging in console
-                    evt.detail.shouldSwap = true;
-                    evt.detail.isError = false;
-                }
-            });
-        })
-    </script>
-</body>
-
+<script>
+document.addEventListener("DOMContentLoaded", (event) => {
+    document.body.addEventListener('htmx:beforeSwap', function(evt) {
+        if (evt.detail.xhr.status === 422) {
+            // allow 422 responses to swap as we are using this as a signal that
+            // a form was submitted with bad data and want to rerender with the
+            // errors
+            //
+            // set isError to false to avoid error logging in console
+            evt.detail.shouldSwap = true;
+            evt.detail.isError = false;
+        }
+    });
+})
+</script>
+    </body>
 </html>
 {{ end }}
 
 {{ block "form" . }}
-<form hx-post="/contacts" hx-swap="outerHTML">
+<form hx-swap="outerHTML" hx-post="/contacts">
     <div class="form-group">
-        <label for="name">Name:</label>
-        <input {{ if .Values.name }} value="{{ .Values.name }}" {{ end }} class="form-control" type="text" name="name"
-            id="name">
+        <label for="name">Name:</label> <input
+        {{ if .Values.name }} value="{{ .Values.name }}" {{ end }}
+        type="text" name="name" />
     </div>
-
     <div class="form-group">
-        <label for="email">Email:</label>
-        <input {{ if .Values.email }} value="{{ .Values.email }}" {{ end }} type="text" name="email" id="email"
-            class="form-control">
+        <label for="email">Email:</label> <input
+        {{ if .Values.email }} value="{{ .Values.email }}" {{ end }}
+        type="text" name="email" />
     </div>
     {{ if .Errors.email }}
-    <div class="alert alert-danger">{{ .Errors.email }}</div>
+        <div style="color: red">{{ .Errors.email }}</div>
     {{ end }}
-    <input type="submit" value="Submit" class="btn btn-primary rounded-pill">
-</form>
 
+    <button type="submit" class="btn btn-primary rounded-pill">Create Contact</button>
+</form>
 {{ end }}
 
 {{ block "display" . }}
-
-<!-- <div class="image-container">
-    <img src="https://images.hdqwalls.com/wallpapers/mountains-5k-retina-8u.jpg" alt="" onload="imageLoaded(this)">
-    <div class="blur-photo"></div>
-</div> -->
-<div id="contacts" style="display: flex; flex-direction: column;">
+    <div id="contacts" style="display: flex; flex-direction: column">
     {{ range .Contacts }}
-    {{ template "contact" . }}
+        {{ template "contact" . }}
     {{ end }}
-
-    <!-- <div class="image-container">
-        <img loading="lazy" src="https://images.hdqwalls.com/wallpapers/mountains-5k-retina-8u.jpg" alt=""
-            onload="imageLoaded(this)">
-        <div class="blur-photo"></div>
-    </div> -->
-</div>
+    </div>
 {{ end }}
 
 {{ block "contact" . }}
+    <div style="display: flex; align-items: center; line-height: 2rem">
+        <div style="width: 1rem; align-items: center; cursor: pointer" class="mx-3">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path fill="none" d="M0 0h24v24H0z"/>
+                <path d="M4 2h16a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1zM3 6h18v16a1 1 0 01-1 1H4a1 1 0 01-1-1V6zm3 3v9a1 1 0 002 0v-9a1 1 0 00-2 0zm5 0v9a1 1 0 002 0v-9a1 1 0 00-2 0zm5 0v9a1 1 0 002 0v-9a1 1 0 00-2 0z"/>
+            </svg>
+        </div>
+        <span class="pr-1">Name:</span><span style="padding-right: 10px"> {{ .Name }}</span>
+        <span class="pr-1">Email:</span><span> {{ .Email }}</span>
+    </div>
+{{ end }}
 
-<div>
-    Name: <span>{{ .Name }}</span>
-    Email: <span>{{ .Email }}</span>
-</div>
+{{ block "oob-contact" . }}
+    <div id="contacts" hx-swap-oob="afterbegin">
+        {{ template "contact" . }}
+    </div>
 {{ end }}
