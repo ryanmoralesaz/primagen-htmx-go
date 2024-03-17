@@ -7,14 +7,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title></title>
     <script src="https://unpkg.com/htmx.org@1.5.0/dist/htmx.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 
 <body>
-    Count {{ .Count }}
-    <!-- 24 minute mark -->
-    <button hx-post="/count">Count</button>
+    <div class="container my-3">
+        {{ template "form" . }}
+        <hr />
+        {{ template "display" . }}
+    </div>
 </body>
 
-
 </html>
+{{ end }}
+
+{{ block "form" . }}
+<form hx-post="/contacts">
+    <div class="form-group">
+        <label for="">name:</label>
+        <input class="form-control" type="text" name="name">
+    </div>
+
+    <div class="form-group">
+        <label for="">email:</label>
+        <input type="text" name="email" class="form-control">
+    </div>
+    <input type="submit" value="Submit" class="btn btn-primary rounded-pill">
+</form>
+{{ end }}
+
+{{ block "display" . }}
+<div style="display: flex; flex-direction: column;">
+    {{ range .Contacts }}
+    <div>
+        Name: <span>{{ .Name }}</span>
+        Email: <span>{{ .Email }}</span>
+    </div>
+    {{ end }}
+</div>
 {{ end }}
