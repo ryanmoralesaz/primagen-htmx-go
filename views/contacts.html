@@ -1,0 +1,68 @@
+{{ block "form" . }}
+<form id="contact-form" hx-swap="outerHTML" hx-post="/contacts">
+    <div class="form-group">
+        <label for="name">Name:</label> <input
+         {{ if .Values }}
+            {{ if .Values.name }}
+                value="{{ .Values.name }}"
+            {{ end }}
+        {{ end }}
+        placeholder="Name"
+        type="text" name="name" />
+         {{ if (.Errors) }}
+            {{ if (.Errors.name) }}
+                <div class="error">{{ .Errors.name }}</div>
+            {{ end }}
+        {{ end }}
+    </div>
+    <div class="form-group">
+        <label for="email">Email:</label> <input
+         {{ if (.Values) }}
+            {{ if (.Values.email) }}
+                value="{{ .Values.email }}"
+            {{ end }}
+        {{ end }}
+        name="email" placeholder="Email"
+        type="text"/>
+
+        {{ if .Errors.email }}
+            <div style="color: red">{{ .Errors.email }}</div>
+        {{ end }}
+    </div>
+
+    <button type="submit" class="btn btn-primary rounded-pill">Create Contact</button>
+</form>
+{{ end }}
+
+{{ block "display" . }}
+    <div id="contacts" style="display: flex; flex-direction: column">
+    {{ range .Contacts }}
+        {{ template "contact" . }}
+    {{ end }}
+    </div>
+{{ end }}
+
+{{ block "contact" . }}
+    <div class="contact" id="contact-{{ .Id }}" style="display: flex; align-items: center; line-height: 2rem">
+        <div hx-indicator="#ci-{{ .Id }}" 
+        hx-target="#contact-{{ .Id }}" 
+        hx-swap="outerHTML" 
+        hx-delete="/contacts/{{ .Id }}" style="width: 1rem; align-items: center; cursor: pointer" class="mx-3">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path fill="none" d="M0 0h24v24H0z"/>
+                <path d="M4 2h16a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1zM3 6h18v16a1 1 0 01-1 1H4a1 1 0 01-1-1V6zm3 3v9a1 1 0 002 0v-9a1 1 0 00-2 0zm5 0v9a1 1 0 002 0v-9a1 1 0 00-2 0zm5 0v9a1 1 0 002 0v-9a1 1 0 00-2 0z"/>
+            </svg>
+        </div>
+        <span class="pr-1">Name:</span><span style="padding-right: 10px"> {{ .Name }}</span>
+        <span class="pr-1">Email:</span><span> {{ .Email }}</span>
+       <div class="htmx-indicator" id="ci-{{ .Id }}"> 
+            <img src="/images/bars.svg" alt="loading" style="width: 1rem">
+        </div>
+    </div>
+{{ end }}
+
+{{ block "oob-contact" . }}
+    <div id="contacts" hx-swap-oob="afterbegin">
+        {{ template "contact" . }}
+    </div>
+{{ end }}

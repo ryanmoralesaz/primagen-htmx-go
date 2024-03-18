@@ -24,7 +24,7 @@ func newTemplate() *Templates {
 	}
 }
 
-var id = 0
+var id = 2
 
 type Contact struct {
 	Name  string
@@ -32,7 +32,7 @@ type Contact struct {
 	Id    int
 }
 
-func newContact(name, email string) Contact {
+func newContact(name string, email string, id int) Contact {
 	id++
 	return Contact{
 		Name:  name,
@@ -67,8 +67,8 @@ func (d *Data) hasEmail(email string) bool {
 func newData() Data {
 	return Data{
 		Contacts: []Contact{
-			newContact("John", "aoeu"),
-			newContact("Clara", "cd@gmail.com"),
+			newContact("John", "aoeu", 1),
+			newContact("Clara", "cd@gmail.com", 2),
 		},
 	}
 }
@@ -108,7 +108,7 @@ func main() {
 	e.Static("/images", "images")
 	e.Static("/css", "css")	
 	e.GET("/", func(c echo.Context) error {
-		return c.Render(200, "index", page)
+		return c.Render(200, "index.html", page)
 	})
 
 	e.POST("/contacts", func(c echo.Context) error {
@@ -124,7 +124,7 @@ func main() {
 			return c.Render(422, "form", formData)
 		}
 
-		contact := newContact(name, email)
+		contact := newContact(name, email, id)
 		page.Data.Contacts = append(page.Data.Contacts, contact)
 
 		// TODO: ??????
